@@ -1,0 +1,562 @@
+PRODUCT REQUIREMENTS DOCUMENT
+AkshitOS – v1.0 SaaS Edition
+Owner: Akshit
+Architecture: Next.js + NextAuth + Prisma + PostgreSQL
+User Model: Single Role (User Only)
+Status: Execution Ready
+1. PRODUCT OVERVIEW
+
+AkshitOS is a SaaS-style, authenticated productivity dashboard designed for developers and engineering students.
+
+It integrates multiple self-optimization tools into a single modular system with secure authentication and database-backed persistence.
+
+The system is:
+
+Authenticated (Email + Google OAuth)
+
+Single-user role (no admin system)
+
+Database-backed (PostgreSQL via Prisma)
+
+Modular
+
+Production-deployable
+
+This is not a demo app.
+This is a structured SaaS foundation.
+
+2. CORE PRODUCT GOALS
+2.1 Functional Goals
+
+Provide 7 integrated productivity modules
+
+Persist all user data securely
+
+Enforce strict user data isolation
+
+Ensure consistent UI/UX system-wide
+
+2.2 Technical Goals
+
+Demonstrate authentication implementation
+
+Demonstrate API architecture
+
+Demonstrate database schema design
+
+Demonstrate modular React component design
+
+Demonstrate scalability readiness
+
+2.3 Portfolio Goals
+
+Production-ready architecture
+
+Clean repository structure
+
+Secure auth flow
+
+Clear backend separation
+
+Real deployment on Vercel
+
+3. USER MODEL
+3.1 Roles
+
+Only one role exists:
+
+User
+
+No:
+
+Admin
+
+Moderator
+
+Team roles
+
+All authenticated users have identical capabilities within their own isolated dataset.
+
+4. AUTHENTICATION SYSTEM
+4.1 Technology
+
+NextAuth
+
+Email + Password
+
+Google OAuth
+
+Prisma Adapter
+
+JWT sessions
+
+4.2 Functional Requirements
+
+User must be able to:
+
+Register with email/password
+
+Login with email/password
+
+Login with Google OAuth
+
+Logout
+
+Maintain session across reload
+
+Access protected routes only if authenticated
+
+4.3 Route Protection
+
+Protected Routes:
+
+/dashboard
+
+/devmood
+
+/focusforge
+
+/snippets
+
+/finance
+
+/study
+
+/resume
+
+/classifier
+
+Public Routes:
+
+/
+
+/login
+
+/register
+
+Unauthenticated user attempting protected route:
+→ Automatically redirected to /login
+
+4.4 Security Requirements
+
+Passwords hashed (bcrypt)
+
+JWT session validation
+
+CSRF protection via NextAuth
+
+All API routes require session validation
+
+No data accessible without valid session
+
+All DB queries filtered by userId
+
+5. DATABASE SCHEMA
+
+All productivity tables must include:
+
+id (UUID)
+
+userId (foreign key)
+
+createdAt
+
+updatedAt
+
+No table may exist without userId.
+
+5.1 User Table
+
+User:
+
+id
+
+name
+
+email (unique)
+
+password (hashed)
+
+image (optional)
+
+createdAt
+
+updatedAt
+
+5.2 DevMoodEntry
+
+id
+
+userId
+
+date
+
+hours
+
+mood (enum)
+
+createdAt
+
+updatedAt
+
+Mood Enum:
+
+Focused
+
+Neutral
+
+Distracted
+
+BurnedOut
+
+Productive
+
+5.3 FocusSession
+
+id
+
+userId
+
+duration
+
+completed (boolean)
+
+timestamp
+
+createdAt
+
+5.4 Snippet
+
+id
+
+userId
+
+title
+
+tags (JSON)
+
+code (text)
+
+createdAt
+
+updatedAt
+
+5.5 FinanceEntry
+
+id
+
+userId
+
+category
+
+amount
+
+createdAt
+
+Optional:
+
+monthlyIncome stored separately or computed
+
+5.6 StudyLog
+
+id
+
+userId
+
+subject
+
+hours
+
+confidence (1–5)
+
+createdAt
+
+Resume Ranker and Text Classifier:
+No required DB storage in v1.0.
+
+6. API ARCHITECTURE
+
+Each module must have RESTful endpoints.
+
+Pattern:
+
+GET /api/{module}
+POST /api/{module}
+PUT /api/{module}/{id}
+DELETE /api/{module}/{id}
+
+All endpoints must:
+
+Validate session
+
+Extract userId from session
+
+Scope queries by userId
+
+Validate input
+
+Return structured JSON responses
+
+Handle errors with proper status codes
+
+7. MODULE REQUIREMENTS (DETAILED)
+7.1 DevMood Module
+Functional
+
+User can:
+
+Add entry
+
+Edit entry
+
+Delete entry
+
+View weekly graph
+
+View monthly graph
+
+View insights
+
+Insight Calculations
+
+Weekly average hours
+
+Most common mood
+
+Productivity trend:
+Compare last 7 days vs previous 7 days
+
+10% increase → Improving
+10% decrease → Declining
+Otherwise → Stable
+
+Edge Cases
+
+No data → Show onboarding UI
+
+Invalid hours → Block
+
+Negative hours → Block
+
+7.2 FocusForge Module
+Functional
+
+User can:
+
+Start timer
+
+Pause timer
+
+Reset timer
+
+Save completed sessions
+
+View streak
+
+View session history
+
+Streak Logic
+
+If at least one completed session per day → streak++
+
+If 24h gap with no session → reset streak
+
+Edge Cases
+
+Page reload during session
+
+Rapid click events
+
+Invalid duration
+
+7.3 Snippet Vault
+Functional
+
+Add snippet
+
+Edit snippet
+
+Delete snippet
+
+Search by title
+
+Filter by tag
+
+Copy to clipboard
+
+Validation
+
+Title required
+
+Code required
+
+Max size limit enforced
+
+7.4 Finance Module
+Functional
+
+Set monthly income
+
+Add expense
+
+Delete expense
+
+View pie chart
+
+View total expense
+
+View savings
+
+Savings = Income − Sum(expenses)
+
+If Savings < 0 → Overspending warning
+
+7.5 Study Analyzer
+Functional
+
+Add study log
+
+View subject bar chart
+
+Identify weakest subject
+
+Identify most neglected subject
+
+Weakest:
+Lowest average confidence
+
+Neglected:
+Lowest total hours
+
+7.6 Resume Ranker
+Functional
+
+User pastes resume text.
+
+System returns:
+
+Word count
+
+Sentence count
+
+Avg sentence length
+
+Action verb count
+
+Buzzword detection
+
+Score out of 100
+
+No AI integration in v1.
+
+7.7 Text Classifier
+
+Keyword-based scoring system.
+
+Categories:
+
+Positive
+
+Negative
+
+Neutral
+
+Dramatic
+
+Tie → Neutral.
+
+8. UI REQUIREMENTS
+
+Dark theme default
+
+Persistent sidebar
+
+Active route highlight
+
+Uniform card system
+
+Toast feedback
+
+Error states
+
+Loading skeletons
+
+Fully responsive
+
+9. PERFORMANCE REQUIREMENTS
+
+<2s initial load
+
+No blocking render logic
+
+Memoized heavy computations
+
+No redundant DB queries
+
+No memory leaks in timers
+
+10. ERROR HANDLING REQUIREMENTS
+
+Frontend:
+
+Show validation errors
+
+Disable invalid submit
+
+Backend:
+
+400 → Invalid input
+
+401 → Unauthorized
+
+500 → Server error
+
+No raw error leaks.
+
+11. ACCEPTANCE CRITERIA
+
+v1.0 complete when:
+
+Authentication fully working
+
+All routes protected
+
+All modules DB-backed
+
+All CRUD operations functional
+
+Data isolated per user
+
+No console errors
+
+Deployed live
+
+README documented
+
+12. OUT OF SCOPE (STRICT)
+
+Role-based access
+
+Multi-user collaboration
+
+Team dashboards
+
+Payments
+
+AI models
+
+Real-time sockets
+
+No scope creep.
+
+13. DEPLOYMENT REQUIREMENTS
+
+Vercel deployment
+
+Production database configured
+
+Environment variables secured
+
+OAuth working in production
+
+No exposed secrets

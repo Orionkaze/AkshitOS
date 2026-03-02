@@ -1,0 +1,472 @@
+ENGINEERING DOCUMENT
+AkshitOS v1.0 – SaaS Architecture
+
+Stack: Next.js (App Router) + TypeScript + NextAuth + Prisma + PostgreSQL + Tailwind
+
+1. SYSTEM ARCHITECTURE OVERVIEW
+
+AkshitOS follows a 3-layer architecture:
+
+Presentation Layer (Frontend UI)
+
+Application Layer (API Routes / Business Logic)
+
+Data Layer (Prisma ORM + PostgreSQL)
+
+Flow:
+
+Client → API Route → Auth Validation → Business Logic → Prisma → Database
+Database → Prisma → API → Client
+
+No direct database access from frontend.
+All data flows through authenticated API routes.
+
+2. PROJECT STRUCTURE
+
+Final directory structure must follow:
+
+/app
+  /api
+    /auth
+    /devmood
+    /focusforge
+    /snippets
+    /finance
+    /study
+  /dashboard
+  /devmood
+  /focusforge
+  /snippets
+  /finance
+  /study
+  /resume
+  /classifier
+  /login
+  /register
+  layout.tsx
+  page.tsx
+
+/components
+  /layout
+  /ui
+  /charts
+  /forms
+
+/lib
+  auth.ts
+  prisma.ts
+  validators.ts
+  calculations.ts
+  constants.ts
+
+/prisma
+  schema.prisma
+
+/types
+  index.ts
+
+Rules:
+
+API logic stays inside /app/api
+
+No business logic inside UI components
+
+All DB interactions go through Prisma client instance in /lib/prisma.ts
+
+3. AUTHENTICATION ENGINEERING DESIGN
+3.1 Auth Configuration
+
+Use:
+
+NextAuth with Prisma Adapter
+
+JWT session strategy
+
+Credentials provider
+
+Google OAuth provider
+
+All auth configuration centralized in:
+
+/app/api/auth/[...nextauth]/route.ts
+
+3.2 Session Handling
+
+On protected pages:
+
+Use getServerSession() in server components
+
+If no session → redirect("/login")
+
+Client components must not assume session blindly.
+
+3.3 API Route Protection Pattern
+
+Each API route must:
+
+Retrieve session
+
+If no session → return 401
+
+Extract userId from session
+
+Perform scoped DB query using userId
+
+Example pattern:
+
+No request proceeds without session validation
+
+No query without where: { userId: session.user.id }
+
+This prevents cross-user exposure.
+
+4. DATABASE ENGINEERING DESIGN
+4.1 Prisma Schema Standards
+
+All models must:
+
+Use UUID
+
+Have createdAt
+
+Have updatedAt (if mutable)
+
+Have foreign key to User
+
+Example relationship:
+
+User 1 → Many DevMoodEntries
+User 1 → Many FocusSessions
+User 1 → Many Snippets
+
+Cascade delete:
+If user deleted → All associated data deleted.
+
+4.2 Indexing Strategy
+
+Add indexes on:
+
+userId fields
+
+date fields (DevMood)
+
+createdAt where needed
+
+Ensures fast queries at scale.
+
+5. MODULE ENGINEERING BREAKDOWN
+5.1 DevMood – Backend Logic
+API Endpoints
+
+GET /api/devmood
+POST /api/devmood
+PUT /api/devmood/:id
+DELETE /api/devmood/:id
+
+Backend Validation
+
+Hours must be > 0
+
+Mood must match enum
+
+Date must be valid
+
+Data Aggregation Strategy
+
+Aggregation for charts should:
+
+Be calculated server-side OR
+
+Retrieved raw and computed client-side using memoized logic
+
+Recommendation:
+Raw retrieval + client-side aggregation for MVP simplicity.
+
+5.2 FocusForge – Timer Engineering
+
+Timer must:
+
+Use useRef for interval
+
+Use useEffect cleanup
+
+Persist session state in DB only when completed
+
+Session completion logic:
+
+Only save if timer reaches 0
+
+Prevent duplicate saves with flag state
+
+Streak calculation:
+Option A (MVP recommended):
+Calculate streak on client using session history.
+
+Option B:
+Store streak in DB (not required for v1).
+
+5.3 Snippet Vault – CRUD Pattern
+
+All CRUD operations follow:
+
+Validate input
+
+Verify ownership
+
+Execute query
+
+Return structured response
+
+Search strategy:
+
+Fetch user snippets
+
+Filter client-side (MVP)
+
+No full-text DB search required
+
+5.4 Finance – Calculation Layer
+
+All calculations abstracted to:
+
+/lib/calculations.ts
+
+Functions:
+
+calculateTotalExpenses(entries)
+
+calculateSavings(income, expenses)
+
+groupByCategory(entries)
+
+UI must not embed raw math logic repeatedly.
+
+5.5 Study Analyzer – Aggregation Logic
+
+Client-side aggregation functions:
+
+getTotalHoursBySubject()
+
+getAverageConfidenceBySubject()
+
+getWeakestSubject()
+
+All heavy calculations wrapped in useMemo.
+
+5.6 Resume Ranker – Scoring Engine
+
+All scoring logic centralized in:
+
+/lib/resumeScorer.ts
+
+Scoring rules:
+
+Word count weight
+
+Action verb count weight
+
+Sentence length weight
+
+Buzzword penalty
+
+Avoid embedding scoring directly in component.
+
+5.7 Text Classifier – Rule Engine
+
+Centralized dictionary:
+
+/lib/constants.ts
+
+Classification function:
+
+classifyText(input: string): Category
+
+Must:
+
+Normalize input
+
+Tokenize
+
+Score categories
+
+Return highest
+
+Tie → Neutral.
+
+6. FRONTEND ENGINEERING STANDARDS
+6.1 Component Rules
+
+Max 200 lines per component
+
+Extract reusable UI elements
+
+No duplicated JSX patterns
+
+No inline styles
+
+6.2 State Management Rules
+
+Local state per module
+
+No global state unless necessary
+
+Use server components where possible
+
+Client components only when needed
+
+6.3 Rendering Optimization
+
+Use useMemo for derived data
+
+Use useCallback when passing handlers
+
+Avoid expensive re-calculation in render
+
+7. ERROR HANDLING STRATEGY
+
+Backend must:
+
+Return JSON format:
+{
+success: false,
+message: "Error message"
+}
+
+Frontend must:
+
+Display toast
+
+Prevent silent failures
+
+Log meaningful error in dev only
+
+No raw stack traces exposed in production.
+
+8. LOGGING STRATEGY
+
+Development:
+
+Console logging allowed
+
+Production:
+
+No debug logs
+
+Only error logs
+
+9. TESTING STRATEGY (Manual v1)
+
+Each module checklist:
+
+Authentication:
+
+Register
+
+Login
+
+Logout
+
+Redirect logic
+
+CRUD Modules:
+
+Add
+
+Edit
+
+Delete
+
+Fetch
+
+Data isolation verified
+
+Edge Cases:
+
+Invalid input
+
+Empty states
+
+Rapid clicks
+
+Session expiry
+
+10. PERFORMANCE TARGETS
+
+First load under 2 seconds
+
+API response under 500ms
+
+No memory leaks
+
+No infinite loops
+
+11. GIT WORKFLOW
+
+Branches:
+
+main → production
+dev → active development
+feature/auth
+feature/devmood
+feature/focusforge
+
+Commit structure:
+
+feat: add devmood POST route
+fix: resolve timer duplicate save
+refactor: extract calculation utilities
+
+No vague commits.
+
+12. DEPLOYMENT ENGINEERING
+
+Environment Variables:
+
+DATABASE_URL
+NEXTAUTH_SECRET
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+
+Production checklist:
+
+Build passes
+
+Prisma migrations applied
+
+OAuth callback URL correct
+
+Session works
+
+All API routes tested live
+
+13. RISK MITIGATION
+
+Risk: Auth complexity
+Mitigation: Complete full auth before module development
+
+Risk: Schema changes mid-build
+Mitigation: Freeze schema after Phase 1
+
+Risk: UI inconsistency
+Mitigation: Build shared UI system before modules
+
+Risk: Over-engineering
+Mitigation: Stick to PRD. No new features.
+
+FINAL ENGINEERING DEFINITION OF DONE
+
+AkshitOS v1.0 is complete when:
+
+Authentication stable
+
+All modules functional
+
+Database properly structured
+
+No cross-user data leaks
+
+Clean codebase
+
+Deployed successfully
+
+Production tested

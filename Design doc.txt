@@ -1,0 +1,506 @@
+📐 AKSHITOS DESIGN DOCUMENT
+Inspired by BizNest – Workflow Management System
+
+Prepared for UI & Frontend Implementation
+
+1. DESIGN PHILOSOPHY
+
+AkshitOS is a developer productivity dashboard, not a gaming UI or pastel to-do list. It should:
+
+✅ Feel structured and modular
+✅ Be minimal yet expressive
+✅ Prioritize clarity over ornamentation
+✅ Use data visualization where applicable
+✅ Be consistent across modules
+
+Aesthetically, we borrow from BizNest:
+
+✔ Sidebar + top bar
+✔ Card panels with crisp hierarchy
+✔ Clear:charts, clean grids
+✔ Breathable spacing
+✔ Intuitive input + feedback
+
+2. COLOR SYSTEM
+
+Dark theme primary | subtle bright accents | readable neutrals
+
+🎨 Core Palette
+Token	Purpose	Example
+bg-primary	Page background	#1E1E2A
+bg-surface	Cards, sections	#242435
+text-primary	Main text	#E0E0E0
+text-secondary	Secondary text	#A0A0A0
+accent-primary	Buttons, highlights	#7C5ACF
+accent-secondary	Graph highlights	#3FA7FF
+alert-error	Errors	#E04848
+alert-warning	Warnings	#FFAA00
+
+Inspired by BizNest’s contrast and hierarchy — deep surfaces with distinct accent colors for focus.
+
+3. TYPOGRAPHY
+
+Use Inter (or Poppins) for professional clarity.
+
+Style	Size	Weight	Usage
+H1	28px	700	Main Page Titles
+H2	22px	600	Section Titles
+H3	18px	600	Card Titles
+Body	16px	400	Labels & Content
+Small	14px	400	Secondary / Helper
+
+Spacing:
+
+Line height ~1.4
+
+Letter spacing normal
+
+Clear hierarchy — no confusion.
+
+4. LAYOUT SYSTEM
+
+AkshitOS should feel like BizNest at scale:
+
+🧱 Global Structure
+| Sidebar | Header | Page Content |
+📐 Grid
+
+24px gutters
+
+12px internal card spacing
+
+8px micro spacing
+
+Content flows in a 12-column grid on desktop
+
+Stacks responsively on mobile
+
+🧊 Cards
+
+Cards host content like charts, lists, forms.
+
+Properties:
+
+BG: bg-surface
+
+Rounded corners: 8px
+
+Shadow: 0 2px 8px rgba(0,0,0,0.2)
+
+Padding: 24px
+
+5. NAVIGATION
+🧭 Sidebar
+
+Fixed left column.
+
+Height: 100vh
+Width expanded: 240px
+Width collapsed: 72px
+
+Sidebar items:
+
+Icon
+
+Label
+
+Active indicator
+
+Hover highlight
+
+Active state:
+
+Accent border
+
+Accent text
+
+Collapsed state:
+Only icons with tooltips.
+
+🗂 Top Header
+
+Shows:
+
+Page title
+
+User avatar + name
+
+Optional search (later modules)
+
+Height: 60px
+Padding: 24px
+
+6. COMPONENT LIBRARY
+
+This section defines standardized reusable UI components.
+
+6.1 Buttons
+Variant	Description
+Primary	Full accent
+Secondary	Outline with accent
+Disabled	Gray + low opacity
+
+Sizes:
+
+Small: 32px height
+
+Medium: 40px height
+
+Large: 48px height
+
+Interaction:
+
+Hover: slight scale + accent glow
+
+Pressed: darker shade
+
+6.2 Inputs
+
+Style:
+
+Rounded corners
+
+Solid bg-surface
+
+Outline on focus
+
+Label floats on top
+
+Error state:
+
+Red border
+
+Error message below
+
+6.3 Cards
+
+Hierarchy:
+
+Card header
+
+Title
+
+Optional action (add / settings)
+
+Body content
+
+Spacing:
+
+Title bottom margin: 16px
+
+Body internal elements spaced 16px
+
+6.4 Tables
+
+For logs and lists.
+
+Striped rows optional
+
+Hover highlight
+
+Dark header
+
+White text
+
+6.5 Charts
+
+Encapsulated in cards with padding.
+
+Consistent color sets:
+
+Primary: accent-primary
+
+Secondary: accent-secondary
+
+Neutral ranges: gradations of text-secondary
+
+Animations:
+
+Smooth fade-in
+
+Hover tooltips enabled
+
+7. PAGE SPECIFICATIONS
+
+Each page must follow a consistent layout.
+
+📊 7.1 Dashboard (Home)
+
+Purpose: Overview key metrics
+
+Content:
+
+Welcome card
+
+Productivity snapshot (DevMood summary)
+
+Total sessions (FocusForge)
+
+Expense summary
+
+Quick snippet count
+
+Layout:
+
+┌─────────────────────┐
+│ Welcome / Quick nav │
+└─────────────────────┘
+┌─────┐┌─────┐┌─────┐┌─────┐
+│Card │Card │Card │Card │
+└─────┴─────┴─────┴─────┘
+📅 7.2 DevMood
+
+Left: Bar/Line Chart
+Right: Entry list
+
+Card flow:
+
+Add new mood log
+
+Chart with toggle (Weekly / Monthly)
+
+Insights summary box
+
+⏱ 7.3 FocusForge
+
+Center timer card:
+
+[ Timer Display ]
+[ Start - Pause - Reset ]
+
+Below:
+
+Statistics card
+
+History list card
+
+Timer cards grid adaptive.
+
+🧾 7.4 Snippet Vault
+
+Components:
+
+Search bar top
+
+Tag filter dropdown
+
+Grid of snippet cards
+
+Snippet card:
+
+Title
+Code block
+Tag badges
+Buttons: Copy / Edit / Delete
+
+Code block:
+
+Fixed height
+
+Scrollable
+
+Mono font
+
+💰 7.5 Finance
+
+Left:
+
+Pie chart of categories
+
+Right:
+
+Expense list
+
+Total / Savings
+
+Savings widget:
+
+Color green if positive
+
+Amber if small
+
+Red if overspending
+
+📚 7.6 Study Analyzer
+
+Top:
+
+Bar chart (Hours per subject)
+
+Below:
+
+Confidence heat strip
+
+Weakest subject call-out card
+
+🧠 7.7 Resume Ranker
+
+Large text input area
+
+Results panel:
+
+Score box
+
+Breakdown cards
+
+Word count
+
+Sentence length
+
+Buzzword count
+
+Action verbs
+
+Color-coded badges:
+
+Excellent (green)
+
+Good (blue)
+
+Needs improvement (amber)
+
+Poor (red)
+
+🔍 7.8 Text Classifier
+
+Input box
+Classify button
+Result badge
+
+Badge colored by result:
+
+Positive → green
+
+Negative → red
+
+Neutral → gray
+
+Dramatic → purple
+
+8. INTERACTION & MOTION
+
+Motion must be reserved, not distracting.
+
+Rules:
+
+Buttons: scale 1.03 on hover
+
+Cards: fade in on mount
+
+Page transitions: cross-fade
+
+Chart animations: semi-slow ease
+
+Toasts: slide from top
+
+9. RESPONSIVE BREAKPOINTS
+
+Phone | Tablet | Desktop
+
+Breakpoints
+
+sm: 320px
+
+md: 768px
+
+lg: 1024px
+
+xl: 1440px
+
+Sidebar collapses at md
+Cards stack vertically on sm
+
+10. EMPTY STATES & MESSAGES
+
+If no data:
+
+Show friendly illustration
+
+Short message
+
+Clear primary button (e.g., “Add First Mood Log”)
+
+Example:
+
+“You don’t have any study logs yet. Let’s add one!”
+
+No blank screens.
+
+11. ERROR & SUCCESS STATES
+Input Errors
+
+Red outline
+
+Message under field
+
+Tooltip hint
+
+Shake animation (optional)
+
+Success
+
+Validations pass
+
+Green toast: “Saved successfully!”
+
+12. DESIGN TOKENS (Tailwind Config)
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        'bg-primary': '#1E1E2A',
+        'bg-surface': '#242435',
+        'text-primary': '#E0E0E0',
+        'text-secondary': '#A0A0A0',
+        'accent-primary': '#7C5ACF',
+        'accent-secondary': '#3FA7FF',
+        'alert-error': '#E04848',
+        'alert-warning': '#FFAA00',
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        mono: ['Fira Code', 'monospace'],
+      },
+    },
+  },
+}
+13. ERROR MESSAGES & LABEL GUIDE
+
+Standard messaging patterns:
+
+Required Field: “This field is required.”
+
+Invalid Entry: “Please enter a valid …”
+
+Save Success: “Saved!”
+
+Delete Confirm: “Are you sure? This action cannot be undone.”
+
+Unauthorized: “Please login to continue.”
+
+Consistency matters.
+
+14. DESIGN DELIVERY CHECKLIST
+
+Before dev integration:
+
+☑ Full responsive mockups
+☑ Component specs
+☑ Token palette
+☑ Interaction notes
+☑ Icon library defined
+☑ Animations defined
+
+15. OPTIONAL UI EXTENSIONS (Future)
+
+Sidebar collapse state remembered
+
+Quick search universal bar
+
+Page breadcrumbs
+
+Dark/Light toggle
+
+Mini on-hover previews
+
+Theme customization panel
