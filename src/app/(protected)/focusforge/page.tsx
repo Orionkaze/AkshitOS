@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { useState, useEffect } from "react";
 import PomodoroTimer from "@/components/focus/PomodoroTimer";
 import { Card } from "@/components/ui";
@@ -12,8 +15,15 @@ import {
   Loader2 
 } from "lucide-react";
 
+interface FocusSession {
+  id: string;
+  duration: number;
+  completed: boolean;
+  timestamp: string;
+}
+
 export default function FocusForgePage() {
-  const [sessions, setSessions] = useState([]);
+  const [sessions, setSessions] = useState<FocusSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchSessions = async () => {

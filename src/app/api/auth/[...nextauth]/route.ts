@@ -1,4 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";

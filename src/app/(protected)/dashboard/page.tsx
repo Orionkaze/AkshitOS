@@ -1,4 +1,7 @@
 import { Card } from "@/components/ui";
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { 
   BarChart3, 
   Timer, 

@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { useEffect, useState } from "react";
 import SnippetCard from "@/components/snippets/SnippetCard";
 import SnippetForm from "@/components/snippets/SnippetForm";
@@ -15,12 +18,20 @@ import {
   Loader2 
 } from "lucide-react";
 
+interface Snippet {
+  id: string;
+  title: string;
+  code: string;
+  tags?: any;
+  createdAt: string;
+}
+
 export default function SnippetVaultPage() {
-  const [snippets, setSnippets] = useState([]);
+  const [snippets, setSnippets] = useState<Snippet[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingSnippet, setEditingSnippet] = useState(null);
+  const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const [viewMode, setViewMode] = useState("grid"); // grid or list
 
   const fetchSnippets = async (query = "") => {
