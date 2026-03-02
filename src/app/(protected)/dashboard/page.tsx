@@ -11,14 +11,17 @@ import {
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import Link from "next/link";
+import MoodChart from "@/components/devmood/MoodChart";
 
 async function getDashboardData(userId: string) {
-  const [devMoodCount, focusSessions, snippetsCount, financeSum, studySum] = await Promise.all([
+  const [devMoodCount, focusSessions, snippetsCount, financeSum, studySum, devMoodEntries] = await Promise.all([
     prisma.devMoodEntry.count({ where: { userId } }),
     prisma.focusSession.findMany({ where: { userId }, orderBy: { timestamp: "desc" }, take: 5 }),
     prisma.snippet.count({ where: { userId } }),
     prisma.financeEntry.aggregate({ where: { userId }, _sum: { amount: true } }),
     prisma.studyLog.aggregate({ where: { userId }, _sum: { hours: true } }),
+    prisma.devMoodEntry.findMany({ where: { userId }, orderBy: { date: "desc" }, take: 7 }),
   ]);
 
   return {
@@ -27,6 +30,7 @@ async function getDashboardData(userId: string) {
     snippetsCount,
     financeTotal: financeSum._sum.amount || 0,
     studyTotal: studySum._sum.hours || 0,
+    devMoodEntries,
   };
 }
 
@@ -118,12 +122,15 @@ export default async function DashboardPage() {
 
       {/* Main Content Areas */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-        <Card className="xl:col-span-2 space-y-4">
-          <h3 className="text-lg font-bold text-text-primary">DevMood Overview</h3>
-          <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-text-secondary/10 rounded-xl bg-bg-primary/50">
-             <p className="text-text-secondary text-sm">No recent activity. Start logging to see your mood trends.</p>
+        <div className="xl:col-span-2 space-y-6">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-lg font-bold text-text-primary">DevMood Overview</h3>
+            <Link href="/devmood" className="text-xs font-bold text-accent-primary uppercase tracking-widest hover:underline flex items-center gap-1">
+              View All <ArrowUpRight size={14} />
+            </Link>
           </div>
-        </Card>
+          <MoodChart data={data.devMoodEntries} />
+        </div>
 
         <Card className="space-y-6">
           <h3 className="text-lg font-bold text-text-primary">Recent Focus Sessions</h3>
