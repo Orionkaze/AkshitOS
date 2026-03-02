@@ -70,6 +70,8 @@ model DevMoodEntry {
   date      DateTime @default(now())
   hours     Float
   mood      Mood
+  energy    Int?     // 1-10 scale
+  note      String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
