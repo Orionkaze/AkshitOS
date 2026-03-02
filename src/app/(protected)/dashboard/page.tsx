@@ -6,7 +6,8 @@ import {
   Wallet, 
   BookOpen, 
   ArrowUpRight, 
-  ArrowDownRight 
+  ArrowDownRight,
+  Brain
 } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -82,6 +83,15 @@ export default async function DashboardPage() {
       color: "text-green-400", 
       bg: "bg-green-400/10",
       trend: "Total learning",
+      trendUp: true
+    },
+    { 
+      label: "AI Tools", 
+      value: "2 Active", 
+      icon: Brain, 
+      color: "text-accent-primary", 
+      bg: "bg-accent-primary/5",
+      trend: "Ready to use",
       trendUp: true
     },
   ];

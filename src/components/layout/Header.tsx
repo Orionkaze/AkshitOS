@@ -3,23 +3,31 @@
 import { useSession, signOut } from "next-auth/react";
 import { User, LogOut, Search as SearchIcon } from "lucide-react";
 import { useState } from "react";
+import SearchOverlay from "./SearchOverlay";
 
 export default function Header() {
   const { data: session } = useSession();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <header className="h-[60px] bg-bg-surface border-b border-text-secondary/10 flex items-center justify-between px-8 sticky top-0 z-40 backdrop-blur-md bg-opacity-80">
-      <div className="flex-1 flex items-center max-w-xl">
-        <div className="relative w-full">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search productivity logs..." 
-            className="w-full bg-bg-primary border border-text-secondary/20 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-accent-primary transition-all"
-          />
+    <>
+      <header className="h-[60px] bg-bg-surface border-b border-text-secondary/10 flex items-center justify-between px-8 sticky top-0 z-40 backdrop-blur-md bg-opacity-80">
+        <div className="flex-1 flex items-center max-w-xl">
+          <button 
+            onClick={() => setIsSearchOpen(true)}
+            className="w-full relative group cursor-text"
+          >
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary group-hover:text-accent-primary transition-colors" size={18} />
+            <div className="w-full bg-bg-primary border border-text-secondary/20 rounded-xl py-2 pl-10 pr-4 text-sm text-text-secondary/50 text-left flex items-center justify-between group-hover:border-accent-primary/20 transition-all">
+              <span>Search productivity logs...</span>
+              <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-bg-surface border border-text-secondary/10 text-[10px] font-bold text-text-secondary uppercase">
+                <span className="text-[14px]">⌘</span> K
+              </div>
+            </div>
+          </button>
         </div>
-      </div>
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
       <div className="flex items-center gap-4 relative">
         <button 
@@ -56,5 +64,6 @@ export default function Header() {
         )}
       </div>
     </header>
+  </>
   );
 }
